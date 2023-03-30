@@ -1,9 +1,9 @@
-<!-- Sourced from https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL -->
+<!-- This is a modification of the tutorial found here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL -->
 <!DOCTYPE html>
 <html>
 
 <head>
-  <title>WebGL</title>
+  <title>WebGL - Getting Started</title>
 </head>
 
 <body>
@@ -21,8 +21,6 @@
     }
 
     const gl = document.querySelector("#glcanvas").getContext("webgl");
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
 
     const shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, loadShader(gl, gl.VERTEX_SHADER, vsSource));
@@ -30,23 +28,13 @@
     gl.linkProgram(shaderProgram);
 
     let vertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition")
-
     const positionBuffer = gl.createBuffer();
-
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
     const positions = [1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0];
-
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0); 
-    gl.clearDepth(1.0); 
-    gl.enable(gl.DEPTH_TEST); 
-    gl.depthFunc(gl.LEQUAL); 
 
     const fieldOfView = (45 * Math.PI) / 180; // in radians
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-   
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, fieldOfView, aspect, .1, 100.0);
 
@@ -60,6 +48,12 @@
     gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uProjectionMatrix"), false, projectionMatrix);
     gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uModelViewMatrix"), false, modelViewMatrix);
 
+    gl.enable(gl.DEPTH_TEST); 
+    gl.depthFunc(gl.LEQUAL); 
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clearDepth(1.0); 
+    
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   </script>
 </body>
