@@ -3,7 +3,7 @@
 <html>
 
 <head>
-  <title>WebGL - Getting Started</title>
+  <title>WebGL - Shader Editor Ready</title>
 </head>
 
 <body>
@@ -13,9 +13,14 @@
 
   <!-- Loading helper functions for the creation of matrices -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+  <script src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script>
   <script src="./vertexShader.js"></script>
   <script src="./fragmentShader.js"></script>
   <script>
+
+
+    let spector = new SPECTOR.Spector();
+    spector.displayUI();
 
     //We nede to make room for our shaders
     //We need to compile the shaders
@@ -27,101 +32,132 @@
 
       //Tell the GPU to compile the shader
       gl.compileShader(shader);
+
+
       return shader;
     }
 
     //Get the 3d context of the element.
     const gl = document.querySelector("#glcanvas").getContext("webgl");
-    /**
-     * End of part 1 - HTML & JS Setup
-     */
 
-    //Allocate memory for a shader on the GPU
-    const shaderProgram = gl.createProgram();
+    let shaderProgram;
 
-    //Assign the compiled code to a memory slot on the GPU
-    gl.attachShader(shaderProgram, loadShader(gl, gl.VERTEX_SHADER, vsSource));
-    gl.attachShader(shaderProgram, loadShader(gl, gl.FRAGMENT_SHADER, fsSource));
+    function start(){
+      // spector.onCapture.add((capture) => {
+      //   // Do something with capture.
+      //   var myEvent = new CustomEvent("SpectorOnCaptureEvent", { detail: { captureString: JSON.stringify(capture) } });
+      //   document.dispatchEvent(myEvent);
+      // });
 
-    // Do the linking on the GPU
-    gl.linkProgram(shaderProgram);
+      // spector.captureCanvas(document.querySelector("#glcanvas"));
+      /**
+       * End of part 1 - HTML & JS Setup
+       */
+
+      //Allocate memory for a shader on the GPU
+      shaderProgram = gl.createProgram();
+
+      //Assign the compiled code to a memory slot on the GPU
+      gl.attachShader(shaderProgram, loadShader(gl, gl.VERTEX_SHADER, vsSource));
+      gl.attachShader(shaderProgram, loadShader(gl, gl.FRAGMENT_SHADER, fsSource));
+
+      // Do the linking on the GPU
+      gl.linkProgram(shaderProgram);
+
+      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        throw gl.getProgramInfoLog(shaderProgram)
+      }
+
+      everything();
+    }
+
+    function everything() {
 
 
-    /**
-     * End part 2 - Compile Shaders
-     */
+      
 
-    // Has 4 vetices, notably they are in 2D
-    // Using a triangle strip to specify the two triangles
-    const positions = [
-      1.0, 1.0, 
-      -1.0, 1.0, 
-      1.0, -1.0, 
-      -1.0, -1.0];
+
+      /**
+       * End part 2 - Compile Shaders
+       */
+
+      // Has 4 vetices, notably they are in 2D
+      // Using a triangle strip to specify the two triangles
+      const positions = [
+        1.0, 1.0,
+        -1.0, 1.0,
+        1.0, -1.0,
+        -1.0, -1.0];
 
       // Create a memory slot for the vertices
-    const positionBuffer = gl.createBuffer();
+      const positionBuffer = gl.createBuffer();
 
-    //Put this information of the GPU.
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+      //Put this information of the GPU.
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    
 
-    //Data we are going to bind to the shaders
-    //There is a variable we need to bind, it is called aVertexPosition
-    let vertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition")
-    gl.vertexAttribPointer(vertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    //Setup our matrices
-    //First is the projection matrix
-    //Degrees into radians
-    const fieldOfView = (45 * Math.PI) / 180; // in radians
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, fieldOfView, aspect, .1, 100.0);
+      //Data we are going to bind to the shaders
+      //There is a variable we need to bind, it is called aVertexPosition
+      let vertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition")
+      gl.vertexAttribPointer(vertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    //Create the model view matrix
-    const modelViewMatrix = mat4.create();
-    mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -5]);
+      //Setup our matrices
+      //First is the projection matrix
+      //Degrees into radians
+      const fieldOfView = (45 * Math.PI) / 180; // in radians
+      const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+      const projectionMatrix = mat4.create();
+      mat4.perspective(projectionMatrix, fieldOfView, aspect, .1, 100.0);
 
-    gl.useProgram(shaderProgram);
+      //Create the model view matrix
+      const modelViewMatrix = mat4.create();
+      mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -5]);
 
-    /**
-     * Done with part 3 - Vertices and Matrices
-     */
+      gl.useProgram(shaderProgram);
 
-     //Attach the per-frame information
-    gl.enableVertexAttribArray(gl.getAttribLocation(shaderProgram, "aVertexPosition"));
-    gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uProjectionMatrix"), false, projectionMatrix);
-    gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uModelViewMatrix"), false, modelViewMatrix);
+      /**
+       * Done with part 3 - Vertices and Matrices
+       */
 
-    //The actual draw calls
-    //We want to use a depth test on the z buffer
-    gl.enable(gl.DEPTH_TEST);
-    //What does it mean to "win" on the GPU
-    //<=
-    //Notably it is not < (although it doesn't matter)
-    gl.depthFunc(gl.LEQUAL);
+      //Attach the per-frame information
+      gl.enableVertexAttribArray(gl.getAttribLocation(shaderProgram, "aVertexPosition"));
+      gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uProjectionMatrix"), false, projectionMatrix);
+      gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uModelViewMatrix"), false, modelViewMatrix);
 
-    //Set our default z-buffer color
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      //The actual draw calls
+      //We want to use a depth test on the z buffer
+      gl.enable(gl.DEPTH_TEST);
+      //What does it mean to "win" on the GPU
+      //<=
+      //Notably it is not < (although it doesn't matter)
+      gl.depthFunc(gl.LEQUAL);
 
-    //Actually clear the buffers
-    gl.clear(gl.COLOR_BUFFER_BIT);
+      //Set our default z-buffer color
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    //Actually clears the depth
-    gl.clearDepth(1.0);
+      //Actually clear the buffers
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-    //Our draw 
-    const indeces = [0, 1, 2, 1,2, 3];
-    //Create our vertex lists
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indeces), gl.STATIC_DRAW)
-    //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-     gl.enable(gl.CULL_FACE);
-     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+      //Actually clears the depth
+      gl.clearDepth(1.0);
+
+      //Our draw 
+      const indeces = [0, 1, 2, 1, 2, 3];
+      //Create our vertex lists
+      const indexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indeces), gl.STATIC_DRAW)
+      //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.enable(gl.CULL_FACE);
+      gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
+      requestAnimationFrame(everything)
+    }
+
+    requestAnimationFrame(start)
+
+
   </script>
 </body>
 
