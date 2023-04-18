@@ -13,12 +13,15 @@
 
   <!-- Loading helper functions for the creation of matrices -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
-  <script src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script>
+  <script src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script><!-- Load SpectorJS for debugging -->
   <script src="./vertexShader.js"></script>
   <script src="./fragmentShader.js"></script>
   <script>
 
 
+    //Boot spector if desired. 
+    //This is not required, but helpful if you need to debug.
+    //Remove these two lines if preferred.
     let spector = new SPECTOR.Spector();
     spector.displayUI();
 
@@ -43,17 +46,6 @@
     let shaderProgram;
 
     function start(){
-      // spector.onCapture.add((capture) => {
-      //   // Do something with capture.
-      //   var myEvent = new CustomEvent("SpectorOnCaptureEvent", { detail: { captureString: JSON.stringify(capture) } });
-      //   document.dispatchEvent(myEvent);
-      // });
-
-      // spector.captureCanvas(document.querySelector("#glcanvas"));
-      /**
-       * End of part 1 - HTML & JS Setup
-       */
-
       //Allocate memory for a shader on the GPU
       shaderProgram = gl.createProgram();
 
@@ -68,19 +60,10 @@
         throw gl.getProgramInfoLog(shaderProgram)
       }
 
-      everything();
+      render();
     }
 
-    function everything() {
-
-
-      
-
-
-      /**
-       * End part 2 - Compile Shaders
-       */
-
+    function render() {
       // Has 4 vetices, notably they are in 2D
       // Using a triangle strip to specify the two triangles
       const positions = [
