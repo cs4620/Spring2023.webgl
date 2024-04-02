@@ -13,17 +13,12 @@
 
   <!-- Loading helper functions for the creation of matrices -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
-  <script src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script><!-- Load SpectorJS for debugging -->
   <script src="./vertexShader.js"></script>
   <script src="./fragmentShader.js"></script>
   <script>
 
 
-    //Boot spector if desired. 
-    //This is not required, but helpful if you need to debug.
-    //Remove these two lines if preferred.
-    let spector = new SPECTOR.Spector();
-    spector.displayUI();
+    
 
     //We nede to make room for our shaders
     //We need to compile the shaders
@@ -135,7 +130,7 @@
       //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       gl.enable(gl.CULL_FACE);
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0)
-      requestAnimationFrame(everything)
+      requestAnimationFrame(render)
     }
 
     requestAnimationFrame(start)
